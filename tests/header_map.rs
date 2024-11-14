@@ -60,7 +60,7 @@ fn with_capacity_overflow() {
 fn reserve_overflow() {
     // See https://github.com/hyperium/http/issues/352
     let mut headers = HeaderMap::<u32>::with_capacity(0);
-    headers.reserve(std::usize::MAX); // next_power_of_two overflows
+    headers.reserve(usize::MAX); // next_power_of_two overflows
 }
 
 #[test]
@@ -272,12 +272,12 @@ fn insert_all_std_headers() {
         }
 
         if i != 0 {
-            for j in (i + 1)..STD.len() {
+            for (_, item) in STD.iter().enumerate().skip(i + 1) {
                 assert!(
-                    m.get(&STD[j]).is_none(),
+                    m.get(item).is_none(),
                     "contained {}; j={}",
-                    STD[j].as_str(),
-                    j
+                    item.as_str(),
+                    i + 1
                 );
             }
         }
@@ -296,8 +296,8 @@ fn insert_79_custom_std_headers() {
             assert_eq!(h[&hdrs[j]], hdrs[j].as_str());
         }
 
-        for j in (i + 1)..hdrs.len() {
-            assert!(h.get(&hdrs[j]).is_none());
+        for (_, item) in hdrs.iter().enumerate().skip(i + 1) {
+            assert!(h.get(item).is_none());
         }
     }
 }
@@ -327,7 +327,7 @@ fn custom_std(n: usize) -> Vec<HeaderName> {
         .collect()
 }
 
-const STD: &'static [HeaderName] = &[
+const STD: &[HeaderName] = &[
     ACCEPT,
     ACCEPT_CHARSET,
     ACCEPT_ENCODING,

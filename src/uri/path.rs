@@ -1,6 +1,8 @@
-use std::convert::TryFrom;
-use std::str::FromStr;
-use std::{cmp, fmt, hash, str};
+use alloc::string::String;
+use alloc::vec::Vec;
+use core::convert::TryFrom;
+use core::str::FromStr;
+use core::{cmp, fmt, hash, str};
 
 use bytes::Bytes;
 
@@ -534,10 +536,10 @@ mod tests {
     #[test]
     fn compares_with_a_string() {
         let path_and_query: PathAndQuery = "/b/world&foo=bar".parse().unwrap();
-        assert!(path_and_query < "/c/world&foo=bar".to_string());
-        assert!("/c/world&foo=bar".to_string() > path_and_query);
-        assert!(path_and_query > "/a/world&foo=bar".to_string());
-        assert!("/a/world&foo=bar".to_string() < path_and_query);
+        assert!(path_and_query < *"/c/world&foo=bar");
+        assert!(*"/c/world&foo=bar" > path_and_query);
+        assert!(path_and_query > *"/a/world&foo=bar");
+        assert!(*"/a/world&foo=bar" < path_and_query);
     }
 
     #[test]
@@ -565,6 +567,6 @@ mod tests {
     }
 
     fn pq(s: &str) -> PathAndQuery {
-        s.parse().expect(&format!("parsing {}", s))
+        s.parse().unwrap_or_else(|_| panic!("parsing {}", s))
     }
 }

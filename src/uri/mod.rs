@@ -23,14 +23,17 @@
 //! ```
 
 use crate::byte_str::ByteStr;
-use std::convert::TryFrom;
 
 use bytes::Bytes;
 
-use std::error::Error;
-use std::fmt;
-use std::hash::{Hash, Hasher};
-use std::str::{self, FromStr};
+use alloc::boxed::Box;
+use alloc::string::String;
+use alloc::vec::Vec;
+use core::convert::TryFrom;
+use core::error::Error;
+use core::fmt;
+use core::hash::{Hash, Hasher};
+use core::str::{self, FromStr};
 
 use self::scheme::Scheme2;
 
@@ -102,6 +105,7 @@ pub struct Uri {
 /// The various parts of a URI.
 ///
 /// This struct is used to provide to and retrieve from a URI.
+#[allow(clippy::manual_non_exhaustive)]
 #[derive(Debug, Default)]
 pub struct Parts {
     /// The scheme component of a URI

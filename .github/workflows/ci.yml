@@ -17,6 +17,7 @@ jobs:
       - test
       - msrv
       - wasm
+      - no-std
       - minimal-versions
       - miri
       - semver
@@ -92,8 +93,6 @@ jobs:
 
   wasm:
     name: WASM
-    #needs: [style]
-
     runs-on: ubuntu-latest
 
     steps:
@@ -107,6 +106,22 @@ jobs:
 
       - name: Check
         run: cargo check --target wasm32-unknown-unknown
+
+  no-std:
+    name: no_std
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: thumbv7m-none-eabi
+
+      - name: Check
+        run: cargo check --target thumbv7m-none-eabi
 
   minimal-versions:
     runs-on: ubuntu-latest

@@ -52,9 +52,9 @@
 //! }
 //! ```
 
-use std::any::Any;
-use std::convert::TryFrom;
-use std::fmt;
+use core::any::Any;
+use core::convert::TryFrom;
+use core::fmt;
 
 use crate::header::{HeaderMap, HeaderName, HeaderValue};
 use crate::method::Method;
@@ -164,6 +164,7 @@ pub struct Request<T> {
 ///
 /// The HTTP request head consists of a method, uri, version, and a set of
 /// header fields.
+#[allow(clippy::manual_non_exhaustive)]
 #[derive(Clone)]
 pub struct Parts {
     /// The request's method

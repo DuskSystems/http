@@ -3,10 +3,10 @@ macro_rules! bench {
         mod $name {
             #[allow(unused_imports)]
             use super::custom_hdr;
+            use core::hash::BuildHasherDefault;
             use fnv::FnvHasher;
             use http::header::*;
             use seahash::SeaHasher;
-            use std::hash::BuildHasherDefault;
             #[allow(unused_imports)]
             use test::{self, Bencher};
 
@@ -43,13 +43,6 @@ macro_rules! bench {
             fn order_map_siphash($b: &mut Bencher) {
                 use indexmap::IndexMap;
                 let $map = || IndexMap::new();
-                $body
-            }
-
-            #[bench]
-            fn std_map_siphash($b: &mut Bencher) {
-                use std::collections::HashMap;
-                let $map = || HashMap::new();
                 $body
             }
             */

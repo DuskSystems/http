@@ -1,11 +1,13 @@
 use bytes::{Bytes, BytesMut};
 
-use std::convert::TryFrom;
-use std::error::Error;
-use std::fmt::Write;
-use std::hash::{Hash, Hasher};
-use std::str::FromStr;
-use std::{cmp, fmt, mem, str};
+use alloc::string::String;
+use alloc::vec::Vec;
+use core::convert::TryFrom;
+use core::error::Error;
+use core::fmt::Write;
+use core::hash::{Hash, Hasher};
+use core::str::FromStr;
+use core::{cmp, fmt, mem, str};
 
 use crate::header::name::HeaderName;
 
@@ -234,7 +236,7 @@ impl HeaderValue {
     }
 
     fn from_shared(src: Bytes) -> Result<HeaderValue, InvalidHeaderValue> {
-        HeaderValue::try_from_generic(src, std::convert::identity)
+        HeaderValue::try_from_generic(src, core::convert::identity)
     }
 
     fn try_from_generic<T: AsRef<[u8]>, F: FnOnce(T) -> Bytes>(
@@ -459,7 +461,7 @@ macro_rules! from_integers {
             let val = HeaderValue::from(n);
             assert_eq!(val, &n.to_string());
 
-            let n = ::std::$t::MAX;
+            let n = $t::MAX;
             let val = HeaderValue::from(n);
             assert_eq!(val, &n.to_string());
         }
@@ -588,6 +590,7 @@ mod try_from_header_name_tests {
     use super::*;
     use crate::header::name;
 
+    #[allow(clippy::unnecessary_fallible_conversions)]
     #[test]
     fn it_converts_using_try_from() {
         assert_eq!(

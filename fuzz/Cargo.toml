@@ -3,13 +3,13 @@ name = "http-fuzz"
 version = "0.0.0"
 authors = ["David Korczynski <david@adalogics.com>"]
 publish = false
-edition = "2018"
+edition = "2021"
 
 [package.metadata]
 cargo-fuzz = true
 
 [dependencies]
-arbitrary = { version = "1",  features = ["derive"] }
+arbitrary = { version = "1", features = ["derive"] }
 libfuzzer-sys = { version = "0.4.0", features = ["arbitrary-derive"] }
 
 [dependencies.http]

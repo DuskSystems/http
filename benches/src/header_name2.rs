@@ -1,4 +1,4 @@
-use criterion::{criterion_group, criterion_main, BenchmarkId,Criterion, Throughput};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use http::header::HeaderName;
 
 // This is a list of some of the standard headers ordered by increasing size.
@@ -42,7 +42,7 @@ fn header_name_by_size(c: &mut Criterion) {
     for name in STANDARD_HEADERS_BY_SIZE {
         group.throughput(Throughput::Bytes(name.len() as u64));
         group.bench_with_input(BenchmarkId::from_parameter(name), name, |b, name| {
-            b.iter(|| HeaderName::from_static(name) );
+            b.iter(|| HeaderName::from_static(name));
         });
     }
     group.finish();

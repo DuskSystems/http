@@ -1,6 +1,11 @@
 # HTTP
 
-A general purpose library of common HTTP types
+A `#[no_std]` compatible fork of the [hyperium/http](https://github.com/hyperium/http) library providing common HTTP types.
+
+- Requires Rust 1.81 for `core::error` support.
+- Replaced `std` dependencies with `core` / `alloc` equivalents.
+- Used `hashbrown::HashMap` instead of `std::collections::HashMap`. (⚠️ Not HashDoS resilient as a result! ⚠️)
+- All other functionality remains unchanged from upstream.
 
 [![CI](https://github.com/hyperium/http/workflows/CI/badge.svg)](https://github.com/hyperium/http/actions?query=workflow%3ACI)
 [![Crates.io](https://img.shields.io/crates/v/http.svg)](https://crates.io/crates/http)
@@ -17,7 +22,7 @@ To use `http`, first add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-http = "1.0"
+http = { git = "https://github.com/DuskSystems/http" }
 ```
 
 Next, add this to your crate:
@@ -62,7 +67,7 @@ fn main() {
 
 # Supported Rust Versions
 
-This project follows the [Tokio MSRV][msrv] and is currently set to `1.49`.
+This project follows the [Tokio MSRV][msrv] and is currently set to `1.81`.
 
 [msrv]: https://github.com/tokio-rs/tokio/#supported-rust-versions
 

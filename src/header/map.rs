@@ -1,10 +1,12 @@
-use std::collections::hash_map::RandomState;
-use std::collections::HashMap;
-use std::convert::TryFrom;
-use std::hash::{BuildHasher, Hash, Hasher};
-use std::iter::{FromIterator, FusedIterator};
-use std::marker::PhantomData;
-use std::{fmt, mem, ops, ptr, vec};
+use alloc::boxed::Box;
+use alloc::vec;
+use alloc::vec::Vec;
+use core::convert::TryFrom;
+use core::hash::BuildHasher;
+use core::hash::{Hash, Hasher};
+use core::iter::{FromIterator, FusedIterator};
+use core::marker::PhantomData;
+use core::{fmt, mem, ops, ptr};
 
 use crate::Error;
 
@@ -13,6 +15,8 @@ use super::HeaderValue;
 
 pub use self::as_header_name::AsHeaderName;
 pub use self::into_header_name::IntoHeaderName;
+
+type RandomState = hashbrown::DefaultHashBuilder;
 
 /// A set of HTTP headers
 ///
@@ -116,7 +120,7 @@ pub struct IntoIter<T> {
 /// associated value.
 #[derive(Debug)]
 pub struct Keys<'a, T> {
-    inner: ::std::slice::Iter<'a, Bucket<T>>,
+    inner: ::core::slice::Iter<'a, Bucket<T>>,
 }
 
 /// `HeaderMap` value iterator.
@@ -209,7 +213,7 @@ pub struct ValueIterMut<'a, T> {
 #[derive(Debug)]
 pub struct ValueDrain<'a, T> {
     first: Option<T>,
-    next: Option<::std::vec::IntoIter<T>>,
+    next: Option<::alloc::vec::IntoIter<T>>,
     lt: PhantomData<&'a mut HeaderMap<T>>,
 }
 
@@ -1448,6 +1452,7 @@ impl<T> HeaderMap<T> {
         ))
     }
 
+    #[allow(clippy::needless_maybe_sized)]
     #[inline]
     fn find<K>(&self, key: &K) -> Option<(usize, usize)>
     where
@@ -2005,14 +2010,14 @@ impl<T> FromIterator<(HeaderName, T)> for HeaderMap<T> {
     }
 }
 
-/// Try to convert a `HashMap` into a `HeaderMap`.
+/// Try to convert a `hashbrown::HashMap` into a `HeaderMap`.
 ///
 /// # Examples
 ///
 /// ```
-/// use std::collections::HashMap;
 /// use std::convert::TryInto;
 /// use http::HeaderMap;
+/// use hashbrown::HashMap;
 ///
 /// let mut map = HashMap::new();
 /// map.insert("X-Custom-Header".to_string(), "my value".to_string());
@@ -2020,7 +2025,7 @@ impl<T> FromIterator<(HeaderName, T)> for HeaderMap<T> {
 /// let headers: HeaderMap = (&map).try_into().expect("valid headers");
 /// assert_eq!(headers["X-Custom-Header"], "my value");
 /// ```
-impl<'a, K, V, T> TryFrom<&'a HashMap<K, V>> for HeaderMap<T>
+impl<'a, K, V, T> TryFrom<&'a hashbrown::HashMap<K, V>> for HeaderMap<T>
 where
     K: Eq + Hash,
     HeaderName: TryFrom<&'a K>,
@@ -2030,7 +2035,7 @@ where
 {
     type Error = Error;
 
-    fn try_from(c: &'a HashMap<K, V>) -> Result<Self, Self::Error> {
+    fn try_from(c: &'a hashbrown::HashMap<K, V>) -> Result<Self, Self::Error> {
         c.iter()
             .map(|(k, v)| -> crate::Result<(HeaderName, T)> {
                 let name = TryFrom::try_from(k).map_err(Into::into)?;
@@ -3531,7 +3536,7 @@ impl Danger {
 
     fn set_red(&mut self) {
         debug_assert!(self.is_yellow());
-        *self = Danger::Red(RandomState::new());
+        *self = Danger::Red(RandomState::default());
     }
 
     fn is_yellow(&self) -> bool {
@@ -3572,7 +3577,7 @@ impl fmt::Display for MaxSizeReached {
     }
 }
 
-impl std::error::Error for MaxSizeReached {}
+impl core::error::Error for MaxSizeReached {}
 
 // ===== impl Utils =====
 
@@ -3613,11 +3618,7 @@ where
 
     let hash = match *danger {
         // Safe hash
-        Danger::Red(ref hasher) => {
-            let mut h = hasher.build_hasher();
-            k.hash(&mut h);
-            h.finish()
-        }
+        Danger::Red(ref hasher) => hasher.hash_one(k),
         // Fast hash
         _ => {
             let mut h = FnvHasher::default();
@@ -3734,6 +3735,7 @@ mod into_header_name {
 
 mod as_header_name {
     use super::{Entry, HdrName, HeaderMap, HeaderName, InvalidHeaderName, MaxSizeReached};
+    use alloc::string::String;
 
     /// A marker trait used to identify values that can be used as search keys
     /// to a `HeaderMap`.
